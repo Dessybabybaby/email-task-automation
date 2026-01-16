@@ -1,1 +1,18 @@
+# Environment variables
+.env
+*.env
+workflow-config.env
 
+# n8n
+.n8n/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+temp/
+*.tmp
