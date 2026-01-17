@@ -155,6 +155,29 @@ After testing with 5 sample emails over 2 hours:
 | Workflow times out | Increase timeout: HTTP Request node → Options → Timeout: 30000 |
 | Duplicate tasks | Enable deduplication: Check if task with same email ID exists before creating |
 
+## Learning Resources
+
+Want to build similar automations?
+
+- **My Other Projects:** [GitHub Portfolio](https://github.com/Dessybabybaby)
+- **Podcast Series:** [Automation Lab](https://open.spotify.com/show/4qINGf2uSO37vdnuoFJYXd)
+- **n8n Documentation:** [docs.n8n.io](https://docs.n8n.io)
+- **Inspiration:** [Automate AI Consulting](https://youtube.com/@automateaiconsulting)
+
+##  Contributing
+
+Found a bug? Have an improvement?
+
+1. Fork the repo
+2. Create feature branch: `git checkout -b feature/improvement`
+3. Commit changes: `git commit -m 'Add improvement'`
+4. Push to branch: `git push origin feature/improvement`
+5. Open Pull Request
+
+All contributions welcome!
+
+---
+
 ## License
 
 MIT License - see [LICENSE](LICENSE)
