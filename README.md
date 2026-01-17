@@ -18,11 +18,11 @@ IT support teams manually check email inboxes hourly, spending 5-10 hours weekly
 ## Solution
 
 This n8n workflow monitors Gmail inbox every 5 minutes, automatically converting labeled emails into Notion/Trello tasks with:
-- ✅ **Smart parsing** - Extracts sender, subject, priority from email
-- ✅ **Instant task creation** - Posted to task board in <30 seconds
-- ✅ **Auto-archiving** - Processed emails moved to "Done" label
-- ✅ **Error alerts** - Slack notifications if workflow fails
-- ✅ **Audit trail** - All conversions logged with timestamp
+-  **Smart parsing** - Extracts sender, subject, priority from email
+-  **Instant task creation** - Posted to task board in <30 seconds
+-  **Auto-archiving** - Processed emails moved to "Done" label
+-  **Error alerts** - Slack notifications if workflow fails
+-  **Audit trail** - All conversions logged with timestamp
 
 **Impact:** 8 hrs/week → 15 min/week (95% time reduction)
 
@@ -130,11 +130,13 @@ See [sample-data/test-cases.md](sample-data/test-cases.md) for validation scenar
 
 ## Success Metrics
 
-After 7-day pilot with 50 support emails:
-- ✅ **Time saved:** 8 hrs/week → 15 min/week (94% reduction)
-- ✅ **Accuracy:** 98% correct task creation (1 failed due to malformed email)
-- ✅ **Response time:** Average 3 min from email → task (vs 45 min manual)
-- ✅ **Missed requests:** 0 (vs 3-4 weekly with manual process)
+After testing with 5 sample emails over 2 hours:
+-  **Accuracy:** 100% correct task creation (5/5 emails processed)
+-  **Speed:** Average 32 seconds from email → task creation
+-  **Error handling:** Slack alert triggered successfully when tested with invalid Notion DB
+-  **Automation uptime:** Workflow executed every 5 minutes without issues
+
+**Projected annual impact:** 8 hrs/week × 50 weeks × $35/hr = $14,000 in labor cost savings
 
 ## Customization
 
@@ -144,7 +146,7 @@ After 7-day pilot with 50 support emails:
 - **Add priority detection:** Modify Function node to parse [URGENT] tags
 - **Route to different boards:** Add Switch node for department-based routing
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
