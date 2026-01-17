@@ -1,0 +1,304 @@
+{
+  "name": "Email-to-Task Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "Label_1030688879558924728"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "320aae01-5713-4ecd-a961-fda4fa5a39c4",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4rgf3onoG15TrvnQ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and parse email data\nfor (const item of $input.all()) {\n  const email = item.json;\n  \n  // Debug: log what we received\n  console.log('Email data:', JSON.stringify(email, null, 2));\n  \n  // Extract sender email\n  const from = email.from || email.sender || 'unknown@example.com';\n  \n  // Extract subject\n  const subject = email.subject || email.title || 'No Subject';\n  \n  // Extract body\n  let body = email.snippet || email.textPlain || email.bodyText || email.body || 'No content';\n  if (email.textHtml && !body) {\n    body = email.textHtml.replace(/<[^>]*>/g, '');\n  }\n  body = body.substring(0, 500).trim();\n  \n  // Detect priority\n  let priority = 'Medium';\n  const subjectUpper = subject.toUpperCase();\n  if (subjectUpper.includes('[URGENT]') || subjectUpper.includes('URGENT')) {\n    priority = 'High';\n  } else if (subjectUpper.includes('[LOW]')) {\n    priority = 'Low';\n  }\n  \n  // Get timestamp\n  const receivedAt = email.date || email.receivedAt || new Date().toISOString();\n  \n  return [{\n    json: {\n      sender: from,\n      subject: subject,\n      description: body,\n      priority: priority,\n      receivedAt: receivedAt,\n      emailId: email.id || 'unknown',\n      threadId: email.threadId || 'unknown'\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cc9aaea1-d765-4845-9cd0-c69aeacdf841",
+      "name": "Extract Email Data"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "labelIds": [
+            "Label_1030688879558924728"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        112
+      ],
+      "id": "c8669d22-7217-4b7a-8e51-b2f7853851f4",
+      "name": "Archive Email",
+      "webhookId": "d27061fd-92b5-4df7-93f0-4aa6af185853",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4rgf3onoG15TrvnQ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7ca64780-677d-4dfb-99c8-a2d23c1d148c",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "1b53ebd5-3a23-4ce2-92c6-3636de1bbbd7",
+      "name": "Check for Errors"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#general",
+          "mode": "name"
+        },
+        "text": "=Email-to-Task Workflow Error\n\nNode: {{ $node[\"Create Task in Notion\"].name }}\nTime: {{ $now.toISO() }}\nEmail Subject: {{ $('Extract Email Data').item.json.subject }}\n\nError Details:\n{{ $json.error || 'Unknown error' }}\n\nCheck n8n execution: {{ $execution.id }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        832,
+        -144
+      ],
+      "id": "10fda3d2-eeea-4802-9ff1-c189961c9034",
+      "name": "Send Error Alert",
+      "webhookId": "3fc2d2e9-bd1f-4c67-961d-38c95c6a5d13",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "yv1WgeiKdv2MTrux",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1eb1b5f3-1852-4f06-a3b1-1b14b064d059",
+              "name": "logEntry",
+              "value": "=Email processed successfully: - From: {{ $('Extract Email Data').item.json.sender }} - Subject: {{ $('Extract Email Data').item.json.subject }} - Notion Task Created: {{ $('Create Task in Notion').item.json.id }} - Processed At: {{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        112
+      ],
+      "id": "6203e958-22bb-4257-b309-b043fc09d699",
+      "name": "Log Success"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2eaf1fe45def80db898af38cc89d17d1",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Title|title",
+              "title": "={{ $json.subject }}"
+            },
+            {
+              "key": "Requester|rich_text",
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $json.sender }}",
+                    "annotationUi": {}
+                  }
+                ]
+              }
+            },
+            {
+              "key": "Priority|select",
+              "selectValue": "={{ $json.priority }}"
+            },
+            {
+              "key": "Description|rich_text",
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $json.description }}",
+                    "annotationUi": {}
+                  }
+                ]
+              }
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "To Do"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "88bf1464-6b69-4df3-940a-1513600c51ed",
+      "name": "Create Task in Notion",
+      "retryOnFail": true,
+      "credentials": {
+        "notionApi": {
+          "id": "xSu7TYPsDy46IDln",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Data": {
+      "main": [
+        [
+          {
+            "node": "Create Task in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Errors": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Archive Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Email": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Task in Notion": {
+      "main": [
+        [
+          {
+            "node": "Check for Errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7ba87563-44dc-48d8-83dc-5af4b8917868",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "420da16e8a4bbbd9d07a488b082e20b52badc29a41dd5a8a3840782b3e7ae978"
+  },
+  "id": "gFOSxJM8yAkn5sx8",
+  "tags": []
+}
