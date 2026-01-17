@@ -1,0 +1,9 @@
+{
+  "notionPageId": "page-abc-123",
+  "title": "[URGENT] VPN Connection Failing",
+  "requester": "john.doe@techcorp.com",
+  "priority": "High",
+  "description": "Hi Support,\n\nI can't connect to VPN since this morning. Getting error 'Connection timeout'...",
+  "status": "To Do",
+  "createdAt": "2026-01-17T10:32:15Z"
+}
