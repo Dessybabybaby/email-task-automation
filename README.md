@@ -1,111 +1,150 @@
 # Email-to-Task Automation
 
-> **Automatically convert support emails into actionable tasks using n8n**
+> Automated support workflow using n8n to monitor Gmail, extract request details, create tasks instantly, and notify on failure — without manual inbox triage
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![n8n](https://img.shields.io/badge/n8n-workflow-FF6D5A)](https://n8n.io)
 
-## Problem Statement
+![Workflow Screenshot](media/workflow-screenshot-eta.png)
 
-IT support teams manually check email inboxes hourly, spending 5-10 hours weekly triaging requests into task management systems. This reactive approach causes:
-- Missed urgent requests buried in inbox
-- Inconsistent response times (30 min to 4+ hours)
-- Manual data entry errors
-- No audit trail of email → task conversion
+---
 
-**Real cost:** 8 hours/week per support coordinator = $15,000+ annually in manual processing time.
+## Table of Contents
 
-## Solution
+- [Overview](#overview)
+- [Features](#features)
+- [Demo](#demo)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Expected Output](#expected-output)
+- [Sample Data](#sample-data)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
-This n8n workflow monitors Gmail inbox every 5 minutes, automatically converting labeled emails into Notion/Trello tasks with:
--  **Smart parsing** - Extracts sender, subject, priority from email
--  **Instant task creation** - Posted to task board in <30 seconds
--  **Auto-archiving** - Processed emails moved to "Done" label
--  **Error alerts** - Slack notifications if workflow fails
--  **Audit trail** - All conversions logged with timestamp
+---
 
-**Impact:** 8 hrs/week → 15 min/week (95% time reduction)
+## Overview
 
-## Architecture
+**Problem:** IT support teams manually check email inboxes hourly, spending 5–10 hours weekly triaging requests into task management systems. This reactive approach causes missed urgent requests, inconsistent response times (30 min to 4+ hours), manual data entry errors, and no audit trail. That's 8 hours per week per coordinator - over $15,000 annually in wasted processing time.
 
-![Architecture Diagram](docs/architecture-diagram.png)
+**Solution:** This n8n workflow monitors a Gmail inbox every 5 minutes, automatically converting labeled emails into Notion tasks with smart parsing, instant creation, and auto-archiving. All conversions are logged with timestamps for a full audit trail.
 
-**Workflow Steps:**
-1. **Trigger:** Gmail poll (every 5 minutes) - filters for "support-inbox" label
-2. **Data Extraction:** Parse email sender, subject, body, timestamp
-3. **Task Creation:** POST to Notion/Trello API with mapped fields
-4. **Email Management:** Archive processed email, add "processed" label
-5. **Error Handling:** Catch failures → Send Slack alert
-6. **Logging:** Record all conversions to audit log
-
-**Tech Stack:**
-- n8n (workflow orchestration)
-- Gmail API (email source)
+**Technology:**
+- n8n (workflow orchestration - self-hosted or cloud)
+- Gmail API (email source and label management)
 - Notion API (task destination - free tier)
 - Slack API (error notifications)
 
-## Quick Start
+---
 
-### Prerequisites
-- n8n installed ([cloud](https://n8n.cloud) or [self-hosted](https://docs.n8n.io/hosting/installation/docker/))
-- Gmail account with API access enabled
+## Features
+
+- Automated inbox monitoring every 5 minutes
+- Smart email parsing (sender, subject, priority, body)
+- Instant task creation in Notion in under 30 seconds
+- Auto-archiving of processed emails to "Done" label
+- Duplicate prevention via email ID deduplication
+- Full audit log of all email → task conversions
+- Low-noise Slack alerts only on workflow failure
+
+---
+
+## Demo
+
+### Audio Case Study
+
+### Visual Demo
+![Demo GIF](docs/demo.gif)
+
+---
+
+## Prerequisites
+
+**Required:**
+- **n8n instance** (self-hosted via Docker OR n8n cloud)
+  - Self-hosted install: https://docs.n8n.io/hosting/installation/docker/
+  - Cloud trial: https://n8n.io/cloud
+- **Gmail account** with API access enabled
+
+**For Task Creation:**
 - Notion account (free tier) OR Trello account
-- Slack workspace (for alerts)
+  - Notion integration guide: https://www.notion.so/my-integrations
 
-### Installation
+**Optional:**
+- **Email/Slack workspace** for failure alert notifications (free)
 
-**Option 1: Import Workflow (Fastest)**
-```bash
-# 1. Download workflow
-curl -O https://raw.githubusercontent.com/Dessybabybaby/email-task-automation/main/workflows/email-task-workflow.json
+---
 
-# 2. In n8n UI: Workflows → Import from File → Select downloaded JSON
-```
+## Installation
 
-**Option 2: Manual Build (Follow guide below)**
+### Quick Start: Import Workflow (5 minutes)
 
-### Configuration
+1. **Download workflow export:**
+   - Go to: [Releases](https://github.com/Dessybabybaby/email-task-automation/releases)
+   - Download `email-task-workflow.json`
 
-1. **Set Gmail Credentials:**
-   - n8n UI → Credentials → Add "Gmail OAuth2"
-   - Follow OAuth flow to authorize
+2. **Import to n8n:**
+   - Open n8n UI
+   - Click **"Workflows"** → **"Add Workflow"** → **"Import from File"**
+   - Select downloaded `email-task-workflow.json`
+   - Click **"Import"**
+
+3. **Configure Gmail credentials:**
+   - Click on the **"Gmail Trigger"** node
+   - Click **"Select Credential"** → **"Create New"**
+   - Follow the OAuth flow and authorize your account
    - Grant permissions: Read, Modify, Send
+   - Click **"Save"**
 
-2. **Set Notion Credentials:**
-   - Create integration: https://www.notion.so/my-integrations
-   - Copy "Internal Integration Token"
-   - n8n UI → Credentials → Add "Notion API"
-   - Paste token
+4. **Configure Notion credentials:**
+   - Go to https://www.notion.so/my-integrations and create a new integration
+   - Copy the **Internal Integration Token**
+   - In n8n: **Credentials → Add "Notion API"** → paste token
+   - Share your target Notion database with the integration
 
-3. **Configure Workflow Variables:**
-   - Edit "Load Configuration" node
+5. **Set workflow variables:**
+   - Open the **"Load Configuration"** node
    - Set your Notion database ID
-   - Set Gmail label name (default: "support-inbox")
+   - Set your Gmail label name (default: `support-inbox`)
 
-4. **Test Execution:**
-   - Click "Execute Workflow" in n8n
-   - Send test email to yourself with label
-   - Verify task appears in Notion
+6. **Activate workflow:**
+   - Toggle **Active** (top-right of n8n UI)
 
-## Sample Data
+7. **Test manually:**
+   - Send a test email to yourself and apply the `support-inbox` label
+   - Click **Execute Workflow**
+   - Verify the task appears in Notion and the email is archived
 
-**Input Email:**
-```
-From: user@company.com
-Subject: [URGENT] VPN connection failing
-Label: support-inbox
+---
 
-Body:
-Hi Support,
+## Usage
 
-I can't connect to VPN since this morning. Getting error "Connection timeout".
-Tried restarting but same issue.
+### Automatic Execution
+Workflow polls Gmail every 5 minutes automatically and processes any new emails with the configured label.
 
-Thanks,
-John
-```
+### Manual Execution
+1. Open the workflow in n8n
+2. Click **Execute Workflow**
+3. Observe each node's execution in real time
+4. Check Notion for the new task and Gmail for the archived email
 
-**Expected Output (Notion Task):**
+### Workflow Logic
+
+1. Gmail trigger fires on schedule (every 5 minutes)
+2. Filter for emails with `support-inbox` label
+3. Check if task with same email ID already exists (deduplication)
+4. Parse sender, subject, body, and priority from email
+5. Create task in Notion with mapped fields and timestamp
+6. Archive processed email and apply `processed` label
+7. On failure: catch error and send Slack alert for manual review
+
+---
+
+## Expected Output
+
+**Notion Task**
 ```json
 {
   "title": "[URGENT] VPN connection failing",
@@ -117,84 +156,77 @@ John
 }
 ```
 
-## Testing
+**Slack Alert (on failure)**
+```
+[FAILED] Email-to-Task Workflow — 2026-01-17
+Reason: Notion database not found (404)
+Action Required: Verify database ID and integration sharing settings
+```
 
-See [sample-data/test-cases.md](sample-data/test-cases.md) for validation scenarios.
+---
 
-**Quick Test:**
-1. Send email to yourself
-2. Add label "support-inbox"
-3. Wait 5 minutes (or manually trigger workflow)
-4. Check Notion for new task
-5. Verify email moved to archive
+## Sample Data
 
-## Success Metrics
+Test the workflow with a sample email before going to production.
 
-After testing with 5 sample emails over 2 hours:
--  **Accuracy:** 100% correct task creation (5/5 emails processed)
--  **Speed:** Average 32 seconds from email → task creation
--  **Error handling:** Slack alert triggered successfully when tested with invalid Notion DB
--  **Automation uptime:** Workflow executed every 5 minutes without issues
+**Input Email:**
+```
+From:    user@company.com
+Subject: [URGENT] VPN connection failing
+Label:   support-inbox
 
-**Projected annual impact:** 8 hrs/week × 50 weeks × $35/hr = $14,000 in labor cost savings
+Body:
+Hi Support,
 
-## Customization
+I can't connect to VPN since this morning. Getting error "Connection timeout".
+Tried restarting but same issue.
 
-**Common Modifications:**
-- **Change polling interval:** Edit Schedule Trigger node (default: 5 min)
-- **Different email label:** Edit Gmail Trigger filter
-- **Add priority detection:** Modify Function node to parse [URGENT] tags
-- **Route to different boards:** Add Switch node for department-based routing
+Thanks,
+John
+```
+
+Additional test cases available in [`sample-data/test-cases.md`](sample-data/test-cases.md).
+
+---
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| No emails detected | Check Gmail label exists, verify OAuth permissions include "Read" |
-| Task creation fails | Verify Notion database shared with integration, check database ID |
+| No emails detected | Confirm Gmail label exists; verify OAuth permissions include Read |
+| Task creation fails | Confirm Notion database is shared with integration; check database ID |
 | Workflow times out | Increase timeout: HTTP Request node → Options → Timeout: 30000 |
-| Duplicate tasks | Enable deduplication: Check if task with same email ID exists before creating |
-
-## Learning Resources
-
-Want to build similar automations?
-
-- **My Other Projects:** [GitHub Portfolio](https://github.com/Dessybabybaby)
-- **Podcast Series:** [Automation Lab](https://open.spotify.com/show/4qINGf2uSO37vdnuoFJYXd)
-- **n8n Documentation:** [docs.n8n.io](https://docs.n8n.io)
-- **Inspiration:** [Automate AI Consulting](https://youtube.com/@automateaiconsulting)
-
-##  Contributing
-
-Found a bug? Have an improvement?
-
-1. Fork the repo
-2. Create feature branch: `git checkout -b feature/improvement`
-3. Commit changes: `git commit -m 'Add improvement'`
-4. Push to branch: `git push origin feature/improvement`
-5. Open Pull Request
-
-All contributions welcome!
+| Duplicate tasks | Confirm deduplication node checks email ID before task creation |
 
 ---
 
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+This project is licensed under the MIT License — see [LICENSE](LICENSE) file for details.
 
-## Credits
-
-- Inspired by [Automate AI Consulting](https://youtube.com/@automateaiconsulting)
-- Built by [Desmond Achusi](https://linkedin.com/in/achusi-desmond)
-- Based on operational experience at NNPC Limited
-
-## Contact
-
-Questions? Reach out:
-- LinkedIn: [Achusi Desmond](https://linkedin.com/in/achusi-desmond)
-- Email: achusidesmond4@gmail.com
-- Portfolio: [GitHub Projects](https://github.com/Dessybabybaby)
+You are free to:
+- ✓ Use commercially
+- ✓ Modify
+- ✓ Distribute
+- ✓ Private use
 
 ---
 
-** If this workflow saved you time, please star the repo!**
+## Acknowledgments
+
+- Inspired by [Automate AI Consulting](https://youtube.com/@automateaiconsulting) - automation workflow content
+- Built with [n8n.io](https://n8n.io) - workflow automation platform
+
+---
+
+## Contact & Portfolio
+
+**Creator:** Achusi Desmond
+- Portfolio: [My Story](https://achusi-desmond.vercel.app/)
+- GitHub: [Dessybabybaby](https://github.com/Dessybabybaby)
+- LinkedIn: [Achusi Desmond](https://linkedin.com/in/achusi-desmond)
+- Email: achusidesmond4@gmail.com
+
+---
+
+**If this workflow saved you time, please star the repo!**
