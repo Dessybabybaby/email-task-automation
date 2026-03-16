@@ -27,7 +27,7 @@
 
 ## Overview
 
-**Problem:** IT support teams manually check email inboxes hourly, spending 5–10 hours weekly triaging requests into task management systems. This reactive approach causes missed urgent requests, inconsistent response times (30 min to 4+ hours), manual data entry errors, and no audit trail. That's 8 hours per week per coordinator - over $15,000 annually in wasted processing time.
+**Problem:** IT support teams manually check email inboxes hourly, spending 5-10 hours weekly triaging requests into task management systems. This reactive approach causes missed urgent requests, inconsistent response times (30 min to 4+ hours), manual data entry errors, and no audit trail. That's 8 hours per week per coordinator - over $15,000 annually in wasted processing time.
 
 **Solution:** This n8n workflow monitors a Gmail inbox every 5 minutes, automatically converting labeled emails into Notion tasks with smart parsing, instant creation, and auto-archiving. All conversions are logged with timestamps for a full audit trail.
 
