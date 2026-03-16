@@ -1,6 +1,6 @@
 # Email-to-Task Automation
 
-> Automated support workflow using n8n to monitor Gmail, extract request details, create tasks instantly, and notify on failure — without manual inbox triage
+> Automated support workflow using n8n to monitor Gmail, extract request details, create tasks instantly, and notify on failure - without manual inbox triage
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![n8n](https://img.shields.io/badge/n8n-workflow-FF6D5A)](https://n8n.io)
@@ -202,7 +202,7 @@ Additional test cases available in [`sample-data/test-cases.md`](sample-data/tes
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
 You are free to:
 - ✓ Use commercially
