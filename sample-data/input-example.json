@@ -1,0 +1,8 @@
+{
+  "from": "john.doe@techcorp.com",
+  "subject": "[URGENT] VPN Connection Failing",
+  "textPlain": "Hi Support,\n\nI can't connect to VPN since this morning. Getting error 'Connection timeout'.\n\nTried restarting but same issue.\n\nThanks,\nJohn",
+  "date": "2026-01-17T10:30:00Z",
+  "id": "abc123xyz",
+  "threadId": "thread456"
+}
